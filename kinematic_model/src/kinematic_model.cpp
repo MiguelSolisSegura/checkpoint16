@@ -56,10 +56,10 @@ private:
         vel_msg.linear.x = float(CommandVels(1, 0));
         vel_msg.linear.y = float(CommandVels(2, 0));
 
-        RCLCPP_INFO(this->get_logger(), "................");
+        RCLCPP_INFO(this->get_logger(), "Received velocities:");
         RCLCPP_INFO(this->get_logger(), "Angular Z: %.2f", vel_msg.angular.z);
-        RCLCPP_INFO(this->get_logger(), "Linear X: %.2f", vel_msg.linear.x);
-        RCLCPP_INFO(this->get_logger(), "Linear Y: %.2f", vel_msg.linear.y);   
+        RCLCPP_INFO(this->get_logger(), " Linear X: %.2f", vel_msg.linear.x);
+        RCLCPP_INFO(this->get_logger(), " Linear Y: %.2f", vel_msg.linear.y);   
 
         publisher_->publish(vel_msg);
     }
