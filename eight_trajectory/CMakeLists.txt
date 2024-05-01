@@ -11,6 +11,12 @@ find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -23,5 +29,21 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+add_executable(eight_trajectory src/eight_trajectory.cpp)
+
+ament_target_dependencies(eight_trajectory
+	rclcpp
+	std_msgs
+	nav_msgs
+)
+
+install(TARGETS
+eight_trajectory
+DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY
+launch
+DESTINATION share/${PROJECT_NAME})
 
 ament_package()

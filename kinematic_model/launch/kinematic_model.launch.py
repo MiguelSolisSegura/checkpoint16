@@ -11,7 +11,8 @@ def generate_launch_description():
             parameters=[{
                 'linear_x': 0.5, 
                 'linear_y': 0.5,
-                'angular_z': 0.5
+                'angular_z': 0.5,
+                'use_sim_time': True
             }]
         ),
         Node(
@@ -19,5 +20,6 @@ def generate_launch_description():
             executable='kinematic_model',
             name='kinematic_model',
             output='screen',
+            parameters=[{'use_sim_time': True}]
         ),
     ])

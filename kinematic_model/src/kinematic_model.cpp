@@ -1,4 +1,5 @@
 #include "geometry_msgs/msg/detail/twist__struct.hpp"
+#include "rclcpp/logging.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
 #include "geometry_msgs/msg/twist.hpp"
@@ -56,10 +57,10 @@ private:
         vel_msg.linear.x = float(CommandVels(1, 0));
         vel_msg.linear.y = float(CommandVels(2, 0));
 
-        RCLCPP_INFO(this->get_logger(), "Received velocities:");
-        RCLCPP_INFO(this->get_logger(), "Angular Z: %.2f", vel_msg.angular.z);
-        RCLCPP_INFO(this->get_logger(), " Linear X: %.2f", vel_msg.linear.x);
-        RCLCPP_INFO(this->get_logger(), " Linear Y: %.2f", vel_msg.linear.y);   
+        RCLCPP_DEBUG(this->get_logger(), "Received velocities:");
+        RCLCPP_DEBUG(this->get_logger(), "Angular Z: %.2f", vel_msg.angular.z);
+        RCLCPP_DEBUG(this->get_logger(), " Linear X: %.2f", vel_msg.linear.x);
+        RCLCPP_DEBUG(this->get_logger(), " Linear Y: %.2f", vel_msg.linear.y);   
 
         publisher_->publish(vel_msg);
     }

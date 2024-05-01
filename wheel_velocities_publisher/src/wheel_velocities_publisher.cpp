@@ -26,6 +26,7 @@ public:
 private:
     // General attributes
     rclcpp::Publisher<Float32MultiArray>::SharedPtr publisher_;
+    
     // Robot physical properties
     float w = 0.134845;
     float r = 0.05;
