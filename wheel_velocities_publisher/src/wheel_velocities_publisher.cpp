@@ -13,7 +13,13 @@ class WheelVelocities : public rclcpp::Node
 public:
     WheelVelocities() : Node("wheel_velocities_publisher") {
         RCLCPP_INFO(this->get_logger(), "Initialized wheel velocities publisher node.");
-        publisher_ = this->create_publisher<Float32MultiArray>("/wheel_speed", 10);       
+        publisher_ = this->create_publisher<Float32MultiArray>("/wheel_speed", 10);
+        this->declare_parameter<float>("linear_x", 0.5);
+        this->declare_parameter<float>("linear_y", 0.5);
+        this->declare_parameter<float>("angular_z", 0.5);
+        this->get_parameter("linear_x", linear_x);
+        this->get_parameter("linear_y", linear_y);
+        this->get_parameter("angular_z", angular_z);
         this->publish_velocities();
     }
 
@@ -26,9 +32,9 @@ private:
     float l = 0.085;
 
     // Velocity commands
-    float linear_x = 0.5;
-    float linear_y = 0.5;
-    float angular_z = 0.5;
+    float linear_x;
+    float linear_y;
+    float angular_z;
 
     void publish_velocities() {
         Eigen::MatrixXd CommandVels(3, 1);

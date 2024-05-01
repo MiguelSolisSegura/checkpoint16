@@ -8,7 +8,11 @@ def generate_launch_description():
             executable='wheel_velocities_publisher',
             name='wheel_velocities_publisher',
             output='screen',
-            #parameters=[{'param_name': 'param_value'}],
+            parameters=[{
+                'linear_x': 0.5, 
+                'linear_y': 0.5,
+                'angular_z': 0.5
+            }]
         ),
         Node(
             package='kinematic_model',
