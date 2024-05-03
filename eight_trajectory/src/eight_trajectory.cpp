@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <string>
 #include <cmath>
+#include <iostream>
 
 using Float32MultiArray = std_msgs::msg::Float32MultiArray;
 using Odometry = nav_msgs::msg::Odometry;
@@ -18,10 +19,10 @@ public:
     EightTrajectory() : Node("eight_trajectory") {
         RCLCPP_INFO(this->get_logger(), "Initialized eight_trajectory node.");
         CommandVels << 0.0, 0.0, 0.0;
+        CurrentOdom << 0.0, 0.0, 0.0;
         publisher_ = this->create_publisher<Float32MultiArray>("/wheel_speed", 10);
-        subscription_ = this->create_subscription<Odometry>("/rosbot_xl_base_controller/odom", 10, std::bind(&EightTrajectory::topic_callback, this, _1));
-        waypoint_timer_ = this->create_wall_timer(3s, std::bind(&EightTrajectory::select_waypoint, this));
-        //velocities_timer_ = this->create_wall_timer(100ms, std::bind(&EightTrajectory::compute_velocities, this));
+        subscription_ = this->create_subscription<Odometry>("/odometry/filtered", 10, std::bind(&EightTrajectory::topic_callback, this, _1));
+        update_waypoint();
     }
 
 private:
@@ -37,12 +38,13 @@ private:
     float l = 0.085;
 
     // Orietation and waypoints
-    float phi;
     int current_waypoint = 0;
-    //Eigen::MatrixXd CommandVels;
-    Eigen::Vector3d CommandVels;
 
-    void select_waypoint() {
+    Eigen::Vector3d CommandVels;
+    Eigen::Vector3d CurrentOdom;
+    Eigen::Vector3d OdomTarget;
+
+    void update_waypoint() {
         RCLCPP_INFO(this->get_logger(), "Changing waypoint.");
         current_waypoint += 1;
         switch (current_waypoint) {
@@ -73,16 +75,19 @@ private:
             default:
                 rclcpp::shutdown();
         }
+        OdomTarget = CurrentOdom + CommandVels;
     }
 
     void compute_velocities() {
         Eigen::MatrixXd RotationMatrix(3, 3);
         Eigen::MatrixXd TwistVels(3, 1);
-        RotationMatrix << 1,    0,             0,
-                          0,    std::cos(phi), std::sin(phi),
-                          0,   -std::sin(phi), std::cos(phi);
-        TwistVels = RotationMatrix * CommandVels;
+        RotationMatrix << 1,    0,                        0,
+                          0,    std::cos(CurrentOdom[0]), std::sin(CurrentOdom[0]),
+                          0,   -std::sin(CurrentOdom[0]), std::cos(CurrentOdom[0]);
+        TwistVels = RotationMatrix * (OdomTarget - CurrentOdom);
+        float norm = float((OdomTarget - CurrentOdom).norm());
         send_message(TwistVels, "Update velocities");
+        if (norm < 0.1) {update_waypoint();}
     }
 
     void send_message(Eigen::MatrixXd TwistVels, std::string Message) {
@@ -107,9 +112,12 @@ private:
 
     void topic_callback(const Odometry::SharedPtr msg) {
         RCLCPP_DEBUG(this->get_logger(), "Odom callback.");
+        float x = msg->pose.pose.position.x;
+        float y = msg->pose.pose.position.y;
         float z = msg->pose.pose.orientation.z;
         float w = msg->pose.pose.orientation.w;
-        phi = 2 * std::atan2(z, w);
+        float phi = 2 * std::atan2(z, w);
+        CurrentOdom << phi, x, y;
         compute_velocities();
     }
 };
